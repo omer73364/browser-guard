@@ -12,7 +12,7 @@
   const guard = Guard.create({ target: '#protected-content' });
   let settings = { ...presets.reading }, paused = false, preset = 'reading', format = 'esm', sequence = 0, toastTimer;
   const log = $('#eventLog');
-  const introCode = "Guard.enable({\n  copy: true,\n  select: true,\n  rightClick: true,\n  savePage: true,\n  print: true,\n  console: false,\n  antiDebug: false,\n  consoleAction: 'noop',\n  onViolation: (type) => console.log('Guard:', type)\n});\n\n// Later, pause protection:\n// Guard.disable();";
+  const introCode = "Guard.enable({\n  copy: true,\n  select: true,\n  rightClick: true,\n  savePage: true,\n  print: true,\n  console: false,\n  antiDebug: false,\n  consoleAction: 'noop',\n  onViolation: (type) => console.log('Guard:', type)\n});";
   const integrations = {
   "esm": "import Guard from 'browser-guard';\n\nGuard.enable({\n  copy: true,\n  select: true,\n  rightClick: true,\n  savePage: true,\n  print: true,\n  console: false,\n  antiDebug: false,\n  consoleAction: 'noop',\n  onViolation: (type) => console.log('Guard:', type)\n});\n\n// Turn off all controls.\n// Guard.disable();",
   "react": "import { useEffect } from 'react';\nimport Guard from 'browser-guard';\n\nexport default function Article() {\n  useEffect(() => {\n    const guard = Guard.create();\n    guard.enable({\n      copy: true,\n      select: true,\n      rightClick: true,\n      savePage: true,\n      print: true,\n      console: false,\n      antiDebug: false,\n      consoleAction: 'noop',\n      onViolation: (type) => console.log('Guard:', type)\n    });\n    return () => guard.destroy();\n  }, []);\n\n  return <article>Your content</article>;\n}",
