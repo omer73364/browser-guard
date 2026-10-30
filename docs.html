@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Browser Guard 1 documentation: whole-page protection, optional scoped instances, exceptions, events, lifecycle, and browser limitations."><link rel="icon" type="image/svg+xml" href="favicon.svg"><title>Documentation — Browser Guard</title><link rel="stylesheet" href="site.css"></head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><div class="nav-wrap"><a href="index.html" class="brand" aria-label="Browser Guard home"><svg viewBox="0 0 32 36" aria-hidden="true"><path d="M16 2 29 7v10c0 8-8 14-13 17C11 31 3 25 3 17V7Z"/><path d="m10 17 4 4 8-9"/></svg><span>browser<span class="brand-light">guard</span><span class="version">v1.0</span></span></a><nav aria-label="Main navigation"><a href="index.html#playground">Playground</a><a href="index.html#api">API reference</a><a href="index.html#install" class="nav-docs">Installation <span aria-hidden="true">↗</span></a></nav></div></header>
+<div class="docs-layout wrap">
+  <aside class="docs-sidebar"><span class="eyebrow">THE REFERENCE</span><nav aria-label="Documentation sections"><a href="#getting-started">Getting started</a><a href="#configuration">Configuration</a><a href="#exceptions">Scope & exceptions</a><a href="#lifecycle">Lifecycle</a><a href="#events">Events</a><a href="#page-wide-effects">Page-wide effects</a><a href="#anti-debugging">Anti-debugging</a><a href="#frameworks">Frameworks</a><a href="#typescript">TypeScript</a></nav><a class="docs-markdown" href="README.md">Markdown reference ↗</a></aside>
+  <main class="docs-content" id="main"><div class="eyebrow">BROWSER GUARD / 1.0</div><h1>A few methods.<br><span class="serif">Clear boundaries.</span></h1><p class="docs-lead">Start with whole-page controls. Add scoped areas and exceptions when you need them.</p>
+    <section id="getting-started"><h2><span>Getting started</span></h2><p>Install the published package in your application:</p><pre><code>npm install browser-guard</code></pre><p>Then import the package in your browser application or framework:</p><pre><code>import Guard from 'browser-guard';
+
+Guard.enable({
+  copy: true,
+  select: true,
+  rightClick: true,
+  savePage: true,
+  print: true,
+  console: false,
+  antiDebug: false,
+  consoleAction: &#x27;noop&#x27;,
+  onViolation: (type) =&gt; console.log(&#x27;Guard:&#x27;, type)
+});
+
+// Later, pause protection:
+// Guard.disable();</code></pre><h3>Without a bundler</h3><p>Use the published CDN build with a script tag after your content. The version is pinned so updates do not change your site unexpectedly.</p><pre><code>&lt;script src="https://cdn.jsdelivr.net/npm/browser-guard@1.0.0/guard.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  Guard.enable({
+    copy: true,
+    select: true,
+    rightClick: true,
+    savePage: true,
+    print: true,
+    console: false,
+    antiDebug: false
+  });
+  // Later: Guard.disable();
+&lt;/script&gt;</code></pre><p>The ESM build is <code>guard.mjs</code>; the classic script is <code>guard.js</code>. CommonJS consumers can use <code>require('browser-guard')</code>. No runtime dependencies are required. Creating an instance requires a browser document.</p></section>
+    <section id="configuration"><h2>02 <span>Configuration</span></h2><p><code>Guard.enable()</code> enables the standard controls for the whole document. For independent lifecycle management, <code>Guard.create()</code> returns an inactive whole-page instance. Calling <code>enable()</code> applies its saved configuration. These are the default feature flags:</p><div class="docs-table-wrap"><table><thead><tr><th>Feature</th><th>Default</th><th>Behavior</th></tr></thead><tbody><tr><td><code>copy</code></td><td>On</td><td>Prevent clipboard copy events in scope.</td></tr><tr><td><code>select</code></td><td>On</td><td>Apply owned CSS to discourage text selection.</td></tr><tr><td><code>rightClick</code></td><td>On</td><td>Prevent the scoped context menu event.</td></tr><tr><td><code>savePage</code></td><td>On</td><td>Intercept Ctrl/Command + S in scope.</td></tr><tr><td><code>print</code></td><td>On</td><td>Hide the target in print media.</td></tr><tr><td><code>console</code></td><td>Off</td><td>Check window dimensions and intercept scoped DevTools shortcuts.</td></tr><tr><td><code>antiDebug</code></td><td>Off</td><td>Request a debugger pause every second.</td></tr></tbody></table></div><p>All feature flags must be booleans. Invalid updates throw before changing the configuration. <code>consoleAction</code> accepts <code>'noop'</code>, <code>'hide'</code>, or <code>'redirect'</code>.</p><pre><code>// Only the named feature changes; other active flags stay as they are.
+guard.enable({ copy: false });
+
+// Read current active flags and consoleAction.
+const status = guard.status();</code></pre></section>
+    <section id="exceptions"><h2>03 <span>Scope & exceptions</span></h2><p><code>target</code> accepts a selector, an element from the current document, or <code>document</code>. It defaults to the whole document. The target must exist when you create the instance.</p><p>Editing fields and elements marked <code>data-guard-allow</code> are exempt by default. A custom <code>allow</code> array replaces these defaults; an empty array removes exceptions.</p><pre><code>const guard = Guard.create({
+  target: '#article',
+  allow: [
+    'input', 'textarea', 'select',
+    '[contenteditable]:not([contenteditable="false"])',
+    '[data-guard-allow]', '.copyable'
+  ]
+});</code></pre><p>Exceptions cover matched elements and their descendants, including content inserted later. They apply to copy, selection, context menus, save shortcuts, and DevTools shortcuts. They do not exempt content from print rules or whole-page effects.</p><p>Each instance owns its handlers and styles. Destroying one leaves other instances active. Any guard can block an event in an overlapping scope. Avoid contradictory selection rules on overlapping targets, since visual selection styles follow the CSS cascade.</p></section>
+    <section id="lifecycle"><h2>04 <span>Lifecycle</span></h2><pre><code>guard.enable();                 // Apply saved configuration.
+guard.disable('copy');          // Temporarily disable one feature.
+guard.disable(['copy', 'print']);
+guard.disable();                // Pause all features.
+guard.enable();                 // Restore saved configuration.
+guard.destroy();                // Release everything. Final and idempotent.</code></pre><p>Disabling preserves the saved configuration and subscriptions. Explicit changes made with <code>enable(options)</code> update the saved configuration. After <code>destroy()</code>, enabling, disabling, or subscribing throws. Create a new instance to start again.</p><p>For components, create after mounting and disable during cleanup:</p><pre><code>useEffect(() =&gt; {
+  const guard = Guard.create({ target: articleRef.current });
+  guard.enable({ copy: true, select: true, rightClick: true, savePage: true, print: true });
+  return () =&gt; guard.disable();
+}, []);</code></pre><p>The global convenience methods <code>Guard.enable()</code>, <code>Guard.disable()</code>, and <code>Guard.on()</code> use a lazy document-wide instance. Prefer <code>Guard.create()</code> when different regions need different rules.</p></section>
+    <section id="events"><h2>05 <span>Events</span></h2><pre><code>const unsubscribe = guard.on('violation', event =&gt; {
+  console.log(event.type);             // e.g. 'right_click'
+  console.log(event.feature);          // e.g. 'rightClick'
+  console.log(event.target);           // A DOM element.
+  console.log(event.timestamp);        // Unix timestamp in milliseconds.
+  console.log(event.originalEvent);    // Native event, or null.
+  console.log(event.defaultPrevented); // Whether it was canceled.
+});
+
+unsubscribe();</code></pre><p>Types include <code>copy</code>, <code>select</code>, <code>right_click</code>, <code>save_page</code>, <code>print</code>, <code>console_open</code>, and <code>console_shortcut</code>. Event records are frozen; DOM references remain live.</p><p>The optional <code>onViolation(type, event)</code> configuration callback can coexist with subscriptions. Each subscription has its own unsubscribe function. All listeners are invoked before the first thrown listener error is propagated.</p></section>
+    <section id="page-wide-effects"><h2>06 <span>Page-wide effects</span></h2><p>A DOM scope is not a browser sandbox. Some operations affect the whole window:</p><ul><li><strong>Printing:</strong> the library hides only the target in print CSS. It cannot cancel the native print dialog. <code>beforeprint</code> notifications come from the window.</li><li><strong>DevTools heuristic:</strong> dimensions are checked immediately, on resize, and every 500 ms. Sidebars and window layouts can trigger false positives. Detached tools do not provide the docked-panel size signal.</li><li><strong>Hide:</strong> temporarily hides the scoped target, or the body for the document-wide instance. The original display style is restored when detection ends or the control is disabled.</li><li><strong>Redirect:</strong> navigates the entire page to <code>about:blank</code>.</li><li><strong>Shortcuts:</strong> interception only works when the page receives the event. Browser menus and browser-owned shortcuts may bypass it.</li></ul><p>Frames, shadow roots, and browser chrome are not controlled as part of their parent’s DOM scope. Cross-boundary selections also have limits. Browser Guard is not DRM or access control, and cannot make delivered content private.</p></section>
+    <section id="anti-debugging"><h2>07 <span>Anti-debugging</span></h2><pre><code>guard.enable({ antiDebug: true });
+// Later, while JavaScript is running:
+guard.disable('antiDebug');</code></pre><p>This optional mode executes a static <code>debugger</code> statement every second. With a debugger attached and pauses enabled, it can pause execution even when DevTools is in a separate window. Without a debugger, the statement does nothing.</p><div class="docs-callout"><strong>Debugger pauses affect the whole page.</strong><p>While paused, the page cannot respond to its controls. To recover, disable breakpoints, resume execution, then disable this feature. Closing DevTools and reloading is another recovery path.</p></div><p>The mode is independent of <code>console</code> and <code>consoleAction</code>. It does not emit a violation because requesting a pause is not evidence that a pause happened. Users can bypass it by disabling debugger pauses. There is no infinite busy loop or dynamic code generation.</p></section>
+<section id="frameworks"><h2><span>Framework examples</span></h2><p>Install the package first, then create the controller after mounting and disable it during cleanup. Each example protects the whole page by default. The lifecycle hooks keep browser access out of server rendering. Add a target only if you want scoped protection.</p><details class="framework-doc"><summary>React</summary><p>useEffect creates the instance after mount and disables it on cleanup. Works with React Strict Mode; in Next.js, use a client component.</p><pre><code>import { useEffect } from &#x27;react&#x27;;
+import Guard from &#x27;browser-guard&#x27;;
+
+export default function Article() {
+  useEffect(() =&gt; {
+    const guard = Guard.create();
+    guard.enable({
+      copy: true,
+      select: true,
+      rightClick: true,
+      savePage: true,
+      print: true,
+      console: false,
+      antiDebug: false,
+      consoleAction: &#x27;noop&#x27;,
+      onViolation: (type) =&gt; console.log(&#x27;Guard:&#x27;, type)
+    });
+    return () =&gt; guard.disable();
+  }, []);
+
+  return &lt;article&gt;Your content&lt;/article&gt;;
+}</code></pre><a href="https://react.dev/reference/react/useEffect" target="_blank" rel="noopener noreferrer">React lifecycle reference ↗</a></details><details class="framework-doc"><summary>Vue</summary><p>Create the instance in onMounted; release it before the component unmounts.</p><pre><code>&lt;script setup&gt;
+import { onMounted, onBeforeUnmount } from &#x27;vue&#x27;;
+import Guard from &#x27;browser-guard&#x27;;
+
+let guard;
+
+onMounted(() =&gt; {
+  guard = Guard.create();
+  guard.enable({
+    copy: true,
+    select: true,
+    rightClick: true,
+    savePage: true,
+    print: true,
+    console: false,
+    antiDebug: false,
+    consoleAction: &#x27;noop&#x27;,
+    onViolation: (type) =&gt; console.log(&#x27;Guard:&#x27;, type)
+  });
+});
+onBeforeUnmount(() =&gt; guard?.disable());
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;article&gt;Your content&lt;/article&gt;
+&lt;/template&gt;</code></pre><a href="https://vuejs.org/api/composition-api-lifecycle" target="_blank" rel="noopener noreferrer">Vue lifecycle reference ↗</a></details><details class="framework-doc"><summary>Angular</summary><p>afterNextRender runs in the browser. DestroyRef disables the controls when the component is destroyed.</p><pre><code>import {
+  Component, DestroyRef,
+  afterNextRender, inject
+} from &#x27;@angular/core&#x27;;
+import Guard from &#x27;browser-guard&#x27;;
+
+@Component({
+  selector: &#x27;app-guarded-article&#x27;,
+  standalone: true,
+  template: &#x27;&lt;article&gt;Your content&lt;/article&gt;&#x27;
+})
+export class GuardedArticle {
+  constructor() {
+    const cleanup = inject(DestroyRef);
+
+    afterNextRender(() =&gt; {
+      const guard = Guard.create();
+      guard.enable({
+        copy: true,
+        select: true,
+        rightClick: true,
+        savePage: true,
+        print: true,
+        console: false,
+        antiDebug: false,
+        consoleAction: &#x27;noop&#x27;,
+        onViolation: (type) =&gt; console.log(&#x27;Guard:&#x27;, type)
+      });
+      cleanup.onDestroy(() =&gt; guard.disable());
+    });
+  }
+}</code></pre><a href="https://angular.dev/guide/components/dom-apis" target="_blank" rel="noopener noreferrer">Angular lifecycle reference ↗</a></details><details class="framework-doc"><summary>Svelte</summary><p>onMount runs in the browser. Its returned function disables the controls on unmount. Works with Svelte and SvelteKit.</p><pre><code>&lt;script&gt;
+  import { onMount } from &#x27;svelte&#x27;;
+  import Guard from &#x27;browser-guard&#x27;;
+
+  onMount(() =&gt; {
+    const guard = Guard.create();
+    guard.enable({
+      copy: true,
+      select: true,
+      rightClick: true,
+      savePage: true,
+      print: true,
+      console: false,
+      antiDebug: false,
+      consoleAction: &#x27;noop&#x27;,
+      onViolation: (type) =&gt; console.log(&#x27;Guard:&#x27;, type)
+    });
+    return () =&gt; guard.disable();
+  });
+&lt;/script&gt;
+
+&lt;article&gt;Your content&lt;/article&gt;</code></pre><a href="https://svelte.dev/docs/svelte/lifecycle-hooks" target="_blank" rel="noopener noreferrer">Svelte lifecycle reference ↗</a></details></section>
+    <section id="typescript"><h2>08 <span>TypeScript & package exports</span></h2><p>The package includes matching declarations for ESM and CommonJS. Types cover feature names, options, active status, and violation events.</p><pre><code>import Guard, { type ViolationEvent } from 'browser-guard';
+
+const guard = Guard.create({ target: '#article' });
+guard.on('violation', (event: ViolationEvent) =&gt; {
+  console.log(event.feature);
+});</code></pre><p>Use one library entry point per application. Mixing the ESM and browser-script builds creates separate ownership registries. The editable source is <code>src/guard-core.js</code>; <code>npm run build</code> generates both distributable builds.</p><a class="button button-dark" href="index.html#playground">Back to the playground ↗</a></section>
+  </main>
+</div>
+<footer class="site-footer wrap"><a href="index.html" class="brand footer-brand">browser<span class="brand-light">guard</span><span class="version">1.0</span></a><p>Small library. Thoughtful boundaries.</p><div><a href="index.html#install">Installation</a></div></footer>
+</body>
+</html>

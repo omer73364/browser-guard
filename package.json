@@ -1,0 +1,72 @@
+{
+  "name": "browser-guard",
+  "version": "1.0.0",
+  "description": "Whole-page browser interaction controls with optional scoped areas, exceptions, events, and lifecycle cleanup.",
+  "main": "guard.js",
+  "scripts": {
+    "build": "node scripts/build.cjs",
+    "test": "node --test tests/guard.test.cjs",
+    "test:browser": "playwright test",
+    "test:types": "tsc -p tests/types/tsconfig.json",
+    "check": "node --check src/guard-core.js && node --check guard.js && node --check guard.mjs && node --check demo.js",
+    "prepack": "npm run build",
+    "dev": "node scripts/serve.cjs",
+    "start": "node scripts/serve.cjs",
+    "build:site": "npm run build && node scripts/build-site.cjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "jsdom": "^26.1.0",
+    "typescript": "^7.0.2"
+  },
+  "module": "./guard.mjs",
+  "types": "./guard.d.cts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./guard.d.mts",
+        "default": "./guard.mjs"
+      },
+      "require": {
+        "types": "./guard.d.cts",
+        "default": "./guard.js"
+      }
+    },
+    "./types": "./types.d.ts",
+    "./guard.js": "./guard.js"
+  },
+  "files": [
+    "guard.js",
+    "guard.mjs",
+    "guard.d.mts",
+    "guard.d.cts",
+    "types.d.ts",
+    "README.md",
+    "LICENSE",
+    "examples"
+  ],
+  "keywords": [
+    "browser",
+    "interaction",
+    "guard",
+    "typescript",
+    "copy",
+    "context-menu"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "homepage": "https://browser-guard-v1.goodash35.chatgpt.site",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omer73364/browser-guard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/omer73364/browser-guard/issues"
+  }
+}
