@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f5ef">
+  <meta name="description" content="Browser Guard is a dependency-free JavaScript library for whole-page browser interaction controls, with optional scoped areas. Explore the API and try the live playground.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg"><title>Browser Guard — Your content. Your rules.</title>
+  <link rel="stylesheet" href="site.css">
+  <script src="guard.js" defer></script>
+  <script src="demo.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="nav-wrap">
+      <a href="#" class="brand" aria-label="Browser Guard home"><svg viewBox="0 0 32 36" aria-hidden="true"><path d="M16 2 29 7v10c0 8-8 14-13 17C11 31 3 25 3 17V7Z"/><path d="m10 17 4 4 8-9"/></svg><span>browser<span class="brand-light">guard</span><span class="version">v1.0</span></span></a>
+      <nav aria-label="Main navigation"><a href="#playground">Playground</a><a href="#api">Frameworks</a><a href="docs.html" class="nav-docs">Documentation <span aria-hidden="true">↗</span></a></nav>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="signal"></span> BROWSER GUARD · V1</div>
+        <h1 id="hero-title">Your content.<br>Your <span class="serif">rules.</span></h1>
+        <p class="hero-description">Protect interactions across your whole page.<br class="desktop-break"> Scope individual sections when you need to.</p>
+        <div class="hero-actions"><a href="#playground" class="button button-dark">Try the playground <span aria-hidden="true">↗</span></a><a href="#install" class="download-link">Install &amp; use <span aria-hidden="true">↗</span></a></div>
+        <p class="honest-note">Interaction controls, not content security. <a href="#limits">Know the limits.</a></p>
+      </div>
+      <div class="hero-code">
+        <div class="code-topbar"><span><span class="file-dot"></span> your-page.js</span><span class="code-language">JAVASCRIPT</span></div>
+        <pre aria-label="Getting started example"><code>Guard.enable({
+  copy: true,
+  select: true,
+  rightClick: true,
+  savePage: true,
+  print: true,
+  console: false,
+  antiDebug: false
+});
+
+Guard.disable();</code></pre>
+        <div class="code-footer"><span><span class="signal"></span> No dependencies. No build step.</span><button class="copy-code" data-copy="intro" aria-label="Copy getting started example">Copy <span aria-hidden="true">⧉</span></button></div>
+      </div>
+    </section>
+    <div class="feature-strip wrap" aria-label="Library capabilities"><span>Whole-page controls</span><span>Built-in exceptions</span><span>Optional scoped areas</span><span>TypeScript ready</span></div>
+    <section class="playground-section wrap" id="playground" aria-labelledby="playground-title">
+      <div class="section-heading"><div><h2 id="playground-title">Try it <span class="serif">yourself.</span></h2></div><p>Test controls on a sample without blocking these docs.</p></div>
+      <div class="workbench">
+        <aside class="control-panel" aria-labelledby="controls-title">
+          <div class="panel-heading"><h3 id="controls-title">Your controls</h3><button id="reset" class="text-button">Reset</button></div>
+          <div class="presets" role="group" aria-label="Control presets"><button data-preset="reading" aria-pressed="true">Reading</button><button data-preset="strict" aria-pressed="false">Strict</button><button data-preset="off" aria-pressed="false">Off</button></div>
+          <div class="control-list">
+            <label class="control"><span><strong>Copy</strong></span><input type="checkbox" id="copyToggle" checked><span class="switch" aria-hidden="true"></span></label>
+            <label class="control"><span><strong>Text selection</strong></span><input type="checkbox" id="selectToggle"><span class="switch" aria-hidden="true"></span></label>
+            <label class="control"><span><strong>Context menu</strong></span><input type="checkbox" id="rightClickToggle"><span class="switch" aria-hidden="true"></span></label>
+            <label class="control"><span><strong>Save shortcut</strong></span><input type="checkbox" id="savePageToggle" checked><span class="switch" aria-hidden="true"></span></label>
+            <label class="control"><span><strong>Print</strong></span><input type="checkbox" id="printToggle" checked><span class="switch" aria-hidden="true"></span></label>
+          </div>
+          <details class="advanced"><summary>Advanced controls <span aria-hidden="true">+</span></summary>
+            <label class="control"><span><strong>DevTools heuristic</strong></span><input type="checkbox" id="consoleToggle"><span class="switch" aria-hidden="true"></span></label>
+            <label class="select-label" for="consoleAction">When tools are suspected</label><select id="consoleAction" disabled><option value="noop">Notify only</option><option value="hide">Hide the preview</option></select>
+            <p class="control-note">May produce false positives. Detached DevTools has no window-size signal. <button id="checkDetection" class="text-button">Check dimensions</button></p>
+            <label class="control"><span><strong>Anti-debugging</strong></span><input type="checkbox" id="antiDebugToggle" aria-describedby="debugHelp"><span class="switch" aria-hidden="true"></span></label>
+            <p id="debugHelp" class="control-note warning">Pauses the whole page when a debugger is attached, including detached tools. To recover: disable breakpoints, resume, then switch this off. Closing DevTools and reloading also resets it.</p>
+          </details>
+          <button class="button pause-button" id="pause"><span aria-hidden="true">Ⅱ</span> Pause controls</button>
+        </aside>
+        <div class="preview-panel">
+          <div class="preview-toolbar"><div><span class="signal" id="stateSignal"></span><strong>Safe preview</strong><span id="activeCount" class="count-badge">3 active</span></div></div>
+          <article class="sample-article" id="protected-content" tabindex="0" aria-label="Protected sample article">
+            <h3>Your sample <span class="serif">content.</span></h3>
+            <p id="sampleText">Try selecting, copying, or right-clicking this text. In your app, controls cover the whole page by default. This demo uses a sample to keep the docs usable.</p>
+            <div class="allowed-snippet" data-guard-allow><div><span class="allowed-badge">Copy allowed <span aria-hidden="true">↗</span></span></div><code>You can copy this text.</code><p>Marked with <code>data-guard-allow</code>.</p></div>
+            <label for="sampleInput" class="sample-input-label">Forms stay editable.</label><input id="sampleInput" class="sample-input" placeholder="Type something here…" autocomplete="off">
+          </article>
+          <div class="test-actions"><button id="testCopy">Copy event <span aria-hidden="true">↗</span></button><button id="testSave">Save shortcut <span aria-hidden="true">↗</span></button><button id="testPrint">Print preview <span aria-hidden="true">↗</span></button></div>
+          <p class="simulation-note" id="testResult" role="status" aria-live="polite">Copy and save tests simulate events; they don’t change your clipboard or open a save dialog.</p>
+        </div>
+      </div>
+      <details class="event-console"><summary class="event-heading"><h3><span class="signal"></span> Event stream <span id="eventCount">00</span></h3><span aria-hidden="true">+</span></summary><button id="clearLog" class="text-button">Clear log</button><div id="eventLog" class="event-log" role="log" aria-live="polite" aria-label="Control event log"><p class="empty-log">Listening for interactions<span>Try a quick test or interact with the preview above.</span></p></div></details>
+      <div class="config-bar"><p>Use these settings in your project.</p><button id="copyConfig" class="button button-dark">Copy configuration <span aria-hidden="true">⧉</span></button></div>
+    </section>
+    <section class="install-section wrap" id="install" aria-labelledby="install-title">
+      <div class="section-heading"><div><h2 id="install-title">Get <span class="serif">started.</span></h2></div><p>Install once. Use with any framework.</p></div>
+      <div class="install-command"><code id="installCommand">npm install browser-guard</code><button class="copy-code" data-copy="install" aria-label="Copy install command">Copy command ⧉</button></div>
+      <p class="install-note">Or use a script tag with the version-pinned CDN build. <a href="docs.html#getting-started">Script-tag setup ↗</a></p>
+    </section>
+    <section class="api-section wrap" id="api" aria-labelledby="api-title">
+      <div class="section-heading"><div><h2 id="api-title">Use it with <span class="serif">your stack.</span></h2></div><p>All options, with setup and disable examples.</p></div>
+      <div class="integration-code">
+        <div class="integration-tabs" role="group" aria-label="Integration examples">
+          <button data-format="esm" aria-pressed="true">JavaScript</button><button data-format="react" aria-pressed="false">React</button><button data-format="vue" aria-pressed="false">Vue</button><button data-format="angular" aria-pressed="false">Angular</button><button data-format="svelte" aria-pressed="false">Svelte</button><button data-format="cjs" aria-pressed="false">CommonJS</button><button data-format="script" aria-pressed="false">Script tag</button>
+        </div>
+        <p class="framework-note" id="frameworkNote">Import the installed package in your browser application.</p>
+        <pre><code id="integrationExample"></code></pre>
+        <div class="integration-footer"><span>Works with TypeScript too.</span><button class="copy-code" data-copy="integration" aria-label="Copy integration example">Copy example ⧉</button></div>
+        <a href="docs.html">Full API documentation <span aria-hidden="true">↗</span></a>
+      </div>
+      <p class="scope-feature"><strong>Need a smaller scope?</strong> Use <code>Guard.create({ target: '#article' })</code> to control a section instead. <a href="docs.html#exceptions">Scope &amp; exceptions ↗</a></p>
+    </section>
+    <section class="limits-section wrap" id="limits" aria-labelledby="limits-title"><h2 id="limits-title">A useful boundary. Not a security layer.</h2><p>Browser controls can be bypassed. Keep sensitive content behind proper access controls. <a href="docs.html#page-wide-effects">Read the limitations ↗</a></p></section>
+  </main>
+  <footer class="site-footer wrap"><a href="#" class="brand footer-brand">browser<span class="brand-light">guard</span><span class="version">1.0</span></a><p>Simple controls. No dependencies.</p><div><a href="#install">Installation</a><a href="docs.html">Docs ↗</a></div></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
