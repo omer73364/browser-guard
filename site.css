@@ -178,3 +178,22 @@ button:disabled, select:disabled { cursor: not-allowed; opacity: .55; }
 .scope-feature strong { color: var(--ink); font-weight: 500; }
 .scope-feature code { font: 13px var(--mono); overflow-wrap: anywhere; }
 .scope-feature a { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Readable syntax colors on both paper and dark code panels. */
+.syntax-keyword { color: #8551a0; }
+.syntax-string { color: #35673a; }
+.syntax-literal { color: #a34c29; }
+.syntax-property { color: #226778; }
+.syntax-function { color: #79541c; }
+.syntax-comment { color: #697363; font-style: italic; }
+.hero-code .syntax-keyword, .docs-content pre .syntax-keyword { color: #d8b8f0; }
+.hero-code .syntax-string, .docs-content pre .syntax-string { color: #c9e59b; }
+.hero-code .syntax-literal, .docs-content pre .syntax-literal { color: #f1b692; }
+.hero-code .syntax-property, .docs-content pre .syntax-property { color: #a6d9e6; }
+.hero-code .syntax-function, .docs-content pre .syntax-function { color: #f1d895; }
+.hero-code .syntax-comment, .docs-content pre .syntax-comment { color: #b4c0aa; }
+
+.docs-content h2, .docs-content h3 { overflow-wrap: anywhere; }
+.docs-content h3 code { font-size: 16px; }
+.docs-content h2 span { min-width: 0; overflow-wrap: anywhere; }
+.docs-content { overflow-x: clip; }

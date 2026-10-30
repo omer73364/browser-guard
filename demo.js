@@ -135,11 +135,11 @@
   $('#copyConfig').addEventListener('click', () => copy(configuration()));
   document.querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', () => copy(button.dataset.copy === 'intro' ? introCode : button.dataset.copy === 'install' ? $('#installCommand').textContent : integrations[format])));
   document.querySelectorAll('[data-format]').forEach(button => button.addEventListener('click', () => {
-    format = button.dataset.format; $('#integrationExample').textContent = integrations[format];
+    format = button.dataset.format; $('#integrationExample').textContent = integrations[format]; window.GuardCodeHighlight?.($('#integrationExample'));
     $('#frameworkNote').textContent = frameworkNotes[format];
     document.querySelectorAll('[data-format]').forEach(tab => tab.setAttribute('aria-pressed', String(tab === button)));
   }));
-  $('#integrationExample').textContent = integrations[format]; $('#frameworkNote').textContent = frameworkNotes[format]; apply();
+  $('#integrationExample').textContent = integrations[format]; window.GuardCodeHighlight?.($('#integrationExample')); $('#frameworkNote').textContent = frameworkNotes[format]; apply();
   window.addEventListener('pagehide', event => {
     // Keep the instance alive for pages restored from the back-forward cache.
     if (!event.persisted) { unsubscribe(); guard.destroy(); window.clearTimeout(toastTimer); }
