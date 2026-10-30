@@ -6,6 +6,7 @@ const port = Number(process.env.PORT || 8765);
 if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT must be an integer from 1 to 65535.');
 // Serve the website's public files, never the whole project or its local state.
 const files = {
+  '/code-highlight.js': ['code-highlight.js', 'text/javascript'],
   '/favicon.svg': ['favicon.svg', 'image/svg+xml'],
   '/': ['index.html', 'text/html'],
   '/index.html': ['index.html', 'text/html'],

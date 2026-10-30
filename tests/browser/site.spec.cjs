@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
   await page.route('https://fonts.gstatic.com/**', route => route.abort());
   await page.route('http://guard.test/**', route => {
     const pathname = new URL(route.request().url()).pathname;
-    const file = { '/': 'index.html', '/site.css': 'site.css', '/demo.js': 'demo.js', '/guard.js': 'guard.js', '/guard.mjs': 'guard.mjs', '/README.md': 'README.md', '/docs.html': 'docs.html' }[pathname];
+    const file = { '/': 'index.html', '/code-highlight.js': 'code-highlight.js', '/favicon.svg': 'favicon.svg', '/site.css': 'site.css', '/demo.js': 'demo.js', '/guard.js': 'guard.js', '/guard.mjs': 'guard.mjs', '/README.md': 'README.md', '/docs.html': 'docs.html' }[pathname];
     if (!file) return route.fulfill({ status: 404, body: 'Not found' });
     const contentType = file.endsWith('.html') ? 'text/html' : file.endsWith('.css') ? 'text/css' : file.endsWith('.md') ? 'text/plain' : 'text/javascript';
     return route.fulfill({ contentType, body: fs.readFileSync(path.join(root, file), 'utf8') });
@@ -15,6 +15,8 @@ test.beforeEach(async ({ page }) => {
   await page.goto('http://guard.test/');
 });
 test('playground controls, presets, pause/resume and event log work', async ({ page }) => {
+  await expect(page.locator('.hero-code .syntax-function').first()).toBeVisible();
+  await expect(page.locator('#integrationExample .syntax-keyword').first()).toBeVisible();
   await expect(page.locator('#activeCount')).toHaveText('3 active');
   await page.locator('#testCopy').click(); await expect(page.locator('#testResult')).toContainText('Copy event blocked');
   await expect(page.locator('#eventLog')).toContainText('Copy blocked in #sampleText');
@@ -63,6 +65,8 @@ for (const width of [1440, 390, 320]) test(`layout fits ${width}px viewport`, as
 test('documentation links open the styled reference and fit mobile', async ({ page }) => {
   await page.locator('.integration-code > a').click();
   await expect(page).toHaveTitle('Documentation — Browser Guard');
+  await expect(page.locator('#methods')).toContainText('guard.destroy()');
+  await expect(page.locator('#parameters')).toContainText('onViolation');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Clear boundaries');
   await page.setViewportSize({ width: 320, height: 844 });
   const width = await page.evaluate(() => document.documentElement.scrollWidth);
