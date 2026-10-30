@@ -1,6 +1,6 @@
 {
   "name": "browser-guard",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Whole-page browser interaction controls with optional scoped areas, exceptions, events, and lifecycle cleanup.",
   "main": "guard.js",
   "scripts": {
@@ -47,7 +47,8 @@
     "types.d.ts",
     "README.md",
     "LICENSE",
-    "examples"
+    "examples",
+    "CHANGELOG.md"
   ],
   "keywords": [
     "browser",
@@ -61,7 +62,7 @@
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "homepage": "https://browser-guard-v1.goodash35.chatgpt.site",
+  "homepage": "https://omer73364.github.io/browser-guard/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/omer73364/browser-guard.git"

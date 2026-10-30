@@ -36,7 +36,7 @@ test('copy export matches current settings and examples switch', async ({ page }
   let copied = await page.evaluate(() => copied); expect(copied[0]).toContain('select: true'); expect(copied[0]).toContain("target: '#protected-content'");
   await page.locator('[data-format="cjs"]').click(); await expect(page.locator('#integrationExample')).toContainText("require('browser-guard')");
   await page.locator('[data-copy="integration"]').click(); copied = await page.evaluate(() => window.copied); expect(copied[1]).toContain("require('browser-guard')");
-  await page.locator('[data-format="script"]').click(); await expect(page.locator('#integrationExample')).toContainText('<script src="https://cdn.jsdelivr.net/npm/browser-guard@1.0.0/guard.js">');
+  await page.locator('[data-format="script"]').click(); await expect(page.locator('#integrationExample')).toContainText('<script src="https://cdn.jsdelivr.net/npm/browser-guard@1.0.1/guard.js">');
   await expect(page.locator('#toast')).toContainText('Copied to clipboard');
 });
 test('only the sample is guarded and advanced detection stays off by default', async ({ page }) => {

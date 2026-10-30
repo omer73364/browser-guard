@@ -1,6 +1,6 @@
 # Publishing Browser Guard
 
-`browser-guard@1.0.0` is published on npm. Its version-pinned CDN build is https://cdn.jsdelivr.net/npm/browser-guard@1.0.0/guard.js. Never republish an existing version; future package changes require a new version.
+`browser-guard@1.0.1` is published on npm. Its version-pinned CDN build is https://cdn.jsdelivr.net/npm/browser-guard@1.0.1/guard.js. Never republish an existing version; future package changes require a new version.
 
 ## Checks
 

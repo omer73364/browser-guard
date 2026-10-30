@@ -63,7 +63,7 @@ Guard.enable({
 ### 🌐 Classic `<script>` tag
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/browser-guard@1.0.0/guard.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/browser-guard@1.0.1/guard.js"></script>
 <script>
   Guard.enable({
     copy: true,
