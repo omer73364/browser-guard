@@ -15,7 +15,7 @@
       consoleAction: 'noop',
       onViolation: (type) => console.log('Guard:', type)
     });
-    return () => guard.disable();
+    return () => guard.destroy();
   });
 </script>
 

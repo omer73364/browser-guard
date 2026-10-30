@@ -75,12 +75,12 @@ test('documentation links open the styled reference and fit mobile', async ({ pa
   await expect(page).toHaveURL(/#anti-debugging$/);
 });
 
-test('framework examples match source files, include disable cleanup, and copy correctly', async ({ page }) => {
+test('framework examples match source files, include destroy cleanup, and copy correctly', async ({ page }) => {
   await page.evaluate(() => { window.copied = []; Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async text => window.copied.push(text) } }); });
   for (const [framework, file] of [['react', 'ReactArticle.jsx'], ['vue', 'VueArticle.vue'], ['angular', 'AngularArticle.ts'], ['svelte', 'SvelteArticle.svelte']]) {
     await page.locator('[data-format="' + framework + '"]').click();
     await expect(page.locator('#integrationExample')).toHaveText(fs.readFileSync(path.join(root, 'examples', file), 'utf8').trim());
-    await expect(page.locator('#integrationExample')).toContainText(/guard\??\.disable\(\)/);
+    await expect(page.locator('#integrationExample')).toContainText(/guard\??\.destroy\(\)/);
     await page.locator('[data-copy="integration"]').click();
     const value = await page.evaluate(() => window.copied.at(-1));
     expect(value).toContain("from 'browser-guard'");

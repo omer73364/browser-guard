@@ -26,7 +26,7 @@ export class GuardedArticle {
         consoleAction: 'noop',
         onViolation: (type) => console.log('Guard:', type)
       });
-      cleanup.onDestroy(() => guard.disable());
+      cleanup.onDestroy(() => guard.destroy());
     });
   }
 }

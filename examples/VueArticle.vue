@@ -18,7 +18,7 @@ onMounted(() => {
     onViolation: (type) => console.log('Guard:', type)
   });
 });
-onBeforeUnmount(() => guard?.disable());
+onBeforeUnmount(() => guard?.destroy());
 </script>
 
 <template>
