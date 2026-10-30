@@ -72,10 +72,10 @@ guard.disable('copy');          // Temporarily disable one feature.
 guard.disable(['copy', 'print']);
 guard.disable();                // Pause all features.
 guard.enable();                 // Restore saved configuration.
-guard.destroy();                // Release everything. Final and idempotent.</code></pre><p>Disabling preserves the saved configuration and subscriptions. Explicit changes made with <code>enable(options)</code> update the saved configuration. After <code>destroy()</code>, enabling, disabling, or subscribing throws. Create a new instance to start again.</p><p>For components, create after mounting and disable during cleanup:</p><pre><code>useEffect(() =&gt; {
+guard.destroy();                // Release everything. Final and idempotent.</code></pre><p>Disabling preserves the saved configuration and subscriptions. Explicit changes made with <code>enable(options)</code> update the saved configuration. After <code>destroy()</code>, enabling, disabling, or subscribing throws. Create a new instance to start again.</p><p>Use <code>disable()</code> to pause an instance you will reuse. On component unmount, use <code>destroy()</code> to release the instance and its subscriptions. Create after mounting and destroy during cleanup:</p><pre><code>useEffect(() =&gt; {
   const guard = Guard.create({ target: articleRef.current });
   guard.enable({ copy: true, select: true, rightClick: true, savePage: true, print: true });
-  return () =&gt; guard.disable();
+  return () =&gt; guard.destroy();
 }, []);</code></pre><p>The global convenience methods <code>Guard.enable()</code>, <code>Guard.disable()</code>, and <code>Guard.on()</code> use a lazy document-wide instance. Prefer <code>Guard.create()</code> when different regions need different rules.</p></section>
     <section id="events"><h2>05 <span>Events</span></h2><pre><code>const unsubscribe = guard.on('violation', event =&gt; {
   console.log(event.type);             // e.g. 'right_click'
@@ -91,7 +91,7 @@ unsubscribe();</code></pre><p>Types include <code>copy</code>, <code>select</cod
     <section id="anti-debugging"><h2>07 <span>Anti-debugging</span></h2><pre><code>guard.enable({ antiDebug: true });
 // Later, while JavaScript is running:
 guard.disable('antiDebug');</code></pre><p>This optional mode executes a static <code>debugger</code> statement every second. With a debugger attached and pauses enabled, it can pause execution even when DevTools is in a separate window. Without a debugger, the statement does nothing.</p><div class="docs-callout"><strong>Debugger pauses affect the whole page.</strong><p>While paused, the page cannot respond to its controls. To recover, disable breakpoints, resume execution, then disable this feature. Closing DevTools and reloading is another recovery path.</p></div><p>The mode is independent of <code>console</code> and <code>consoleAction</code>. It does not emit a violation because requesting a pause is not evidence that a pause happened. Users can bypass it by disabling debugger pauses. There is no infinite busy loop or dynamic code generation.</p></section>
-<section id="frameworks"><h2><span>Framework examples</span></h2><p>Install the package first, then create the controller after mounting and disable it during cleanup. Each example protects the whole page by default. The lifecycle hooks keep browser access out of server rendering. Add a target only if you want scoped protection.</p><details class="framework-doc"><summary>React</summary><p>useEffect creates the instance after mount and disables it on cleanup. Works with React Strict Mode; in Next.js, use a client component.</p><pre><code>import { useEffect } from &#x27;react&#x27;;
+<section id="frameworks"><h2><span>Framework examples</span></h2><p>Install the package first, then create the controller after mounting and destroy it during cleanup. Each example protects the whole page by default. The lifecycle hooks keep browser access out of server rendering. Add a target only if you want scoped protection.</p><details class="framework-doc"><summary>React</summary><p>useEffect creates the instance after mount and destroys it on cleanup. Works with React Strict Mode; in Next.js, use a client component.</p><pre><code>import { useEffect } from &#x27;react&#x27;;
 import Guard from &#x27;browser-guard&#x27;;
 
 export default function Article() {
@@ -108,7 +108,7 @@ export default function Article() {
       consoleAction: &#x27;noop&#x27;,
       onViolation: (type) =&gt; console.log(&#x27;Guard:&#x27;, type)
     });
-    return () =&gt; guard.disable();
+    return () =&gt; guard.destroy();
   }, []);
 
   return &lt;article&gt;Your content&lt;/article&gt;;
@@ -132,12 +132,12 @@ onMounted(() =&gt; {
     onViolation: (type) =&gt; console.log(&#x27;Guard:&#x27;, type)
   });
 });
-onBeforeUnmount(() =&gt; guard?.disable());
+onBeforeUnmount(() =&gt; guard?.destroy());
 &lt;/script&gt;
 
 &lt;template&gt;
   &lt;article&gt;Your content&lt;/article&gt;
-&lt;/template&gt;</code></pre><a href="https://vuejs.org/api/composition-api-lifecycle" target="_blank" rel="noopener noreferrer">Vue lifecycle reference ↗</a></details><details class="framework-doc"><summary>Angular</summary><p>afterNextRender runs in the browser. DestroyRef disables the controls when the component is destroyed.</p><pre><code>import {
+&lt;/template&gt;</code></pre><a href="https://vuejs.org/api/composition-api-lifecycle" target="_blank" rel="noopener noreferrer">Vue lifecycle reference ↗</a></details><details class="framework-doc"><summary>Angular</summary><p>afterNextRender runs in the browser. DestroyRef destroys the instance when the component is destroyed.</p><pre><code>import {
   Component, DestroyRef,
   afterNextRender, inject
 } from &#x27;@angular/core&#x27;;
@@ -165,10 +165,10 @@ export class GuardedArticle {
         consoleAction: &#x27;noop&#x27;,
         onViolation: (type) =&gt; console.log(&#x27;Guard:&#x27;, type)
       });
-      cleanup.onDestroy(() =&gt; guard.disable());
+      cleanup.onDestroy(() =&gt; guard.destroy());
     });
   }
-}</code></pre><a href="https://angular.dev/guide/components/dom-apis" target="_blank" rel="noopener noreferrer">Angular lifecycle reference ↗</a></details><details class="framework-doc"><summary>Svelte</summary><p>onMount runs in the browser. Its returned function disables the controls on unmount. Works with Svelte and SvelteKit.</p><pre><code>&lt;script&gt;
+}</code></pre><a href="https://angular.dev/guide/components/dom-apis" target="_blank" rel="noopener noreferrer">Angular lifecycle reference ↗</a></details><details class="framework-doc"><summary>Svelte</summary><p>onMount runs in the browser. Its returned function destroys the instance on unmount. Works with Svelte and SvelteKit.</p><pre><code>&lt;script&gt;
   import { onMount } from &#x27;svelte&#x27;;
   import Guard from &#x27;browser-guard&#x27;;
 
@@ -185,7 +185,7 @@ export class GuardedArticle {
       consoleAction: &#x27;noop&#x27;,
       onViolation: (type) =&gt; console.log(&#x27;Guard:&#x27;, type)
     });
-    return () =&gt; guard.disable();
+    return () =&gt; guard.destroy();
   });
 &lt;/script&gt;
 
