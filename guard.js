@@ -43,6 +43,9 @@ function createGuardLibrary() {
         if (featureNames.includes(key) && typeof update[key] !== 'boolean') throw new TypeError(key + ' must be a boolean.');
       }
       if (own(update, 'consoleAction') && !['noop', 'hide', 'redirect'].includes(update.consoleAction)) throw new TypeError('consoleAction must be noop, hide, or redirect.');
+      // Bundlers commonly erase debugger statements. Fail before changing any state.
+      if (update.antiDebug === true && !/\bdebugger\b/.test(Function.prototype.toString.call(pauseDebugger)))
+        throw new Error('antiDebug requires a build that preserves debugger statements. Disable dropDebugger/drop_debugger in your minifier.');
       if (own(update, 'onViolation') && update.onViolation !== null && typeof update.onViolation !== 'function') throw new TypeError('onViolation must be a function or null.');
     }
     validate(initial);

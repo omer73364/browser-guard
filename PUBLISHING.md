@@ -9,6 +9,8 @@ npm test
 npm run test:types
 npm run check
 npm run test:browser
+npm run test:integration:prepare
+npm run test:integration
 npm run build:site
 ```
 

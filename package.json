@@ -12,7 +12,9 @@
     "prepack": "npm run build",
     "dev": "node scripts/serve.cjs",
     "start": "node scripts/serve.cjs",
-    "build:site": "npm run build && node scripts/build-site.cjs"
+    "build:site": "npm run build && node scripts/build-site.cjs",
+    "test:integration:prepare": "node scripts/integration-prepare.cjs",
+    "test:integration": "playwright test -c tests/integration/playwright.config.cjs"
   },
   "engines": {
     "node": ">=20"

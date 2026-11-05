@@ -312,6 +312,31 @@ Some browser actions can't be confined to one area:
 | 🐞 `antiDebug` | Requests a debugger pause every 1,000 ms. It affects the **whole JS context**, and does nothing without an attached debugger.                                                           |
 
 <details>
+<summary>🏗️ Preserve anti-debugging in production bundles</summary>
+
+Minifiers can remove `debugger` statements. If you use `antiDebug`, configure your production build to retain them. A stripped build now throws a clear error before changing any settings, rather than reporting an active feature that cannot pause.
+
+For **Vite 8 / Rolldown** (covered by the integration tests):
+
+```js
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  build: {
+    rolldownOptions: {
+      output: {
+        minify: { compress: { dropDebugger: false } }
+      }
+    }
+  }
+});
+```
+
+Other minifiers use different names, such as Terser's `compress.drop_debugger: false`. Keep `antiDebug` off if you do not need debugger pauses. The published standalone `guard.js` and `guard.mjs` builds retain the statement unless another build step removes it. No dynamic `eval` or `Function` constructor is used.
+
+</details>
+
+<details>
 <summary>🆘 Stuck in a debugger pause?</summary>
 
 Disable breakpoints and resume, then call `guard.disable('antiDebug')`, or close DevTools and reload. Disabling or destroying an instance stops its timers.
@@ -331,7 +356,14 @@ Ready-to-use components live in [`examples/`](examples/). Each creates a whole-p
 | 🅰️ Angular | [`AngularArticle.ts`](examples/AngularArticle.ts)       | `afterNextRender` + `DestroyRef`                          |
 | 🧡 Svelte  | [`SvelteArticle.svelte`](examples/SvelteArticle.svelte) | `onMount` + cleanup (SvelteKit works too)                 |
 
-Framework dependencies belong to your app, not to this library.
+Framework dependencies belong to your app, not to this library. Real integration apps, the pinned compatibility matrix and reproducible commands are documented in [`TESTING.md`](https://github.com/omer73364/browser-guard/blob/main/TESTING.md).
+
+```bash
+npm run test:integration:prepare
+npm run test:integration
+```
+
+The suite includes production builds, framework mounting and destruction, server rendering, React/Vue/Svelte hydration, and React development Strict Mode across Chromium, Firefox and WebKit. See the testing report for coverage limits.
 
 ## 🛠️ Development
 

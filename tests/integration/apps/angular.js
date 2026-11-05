@@ -1,0 +1,12 @@
+import './harness.js';
+import { enableProdMode } from '@angular/core';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AngularApp } from './.generated/angular-compiled/AngularApp.js';
+enableProdMode();
+const ref = await bootstrapApplication(AngularApp);
+const component = ref.components[0].instance;
+window.harness.mount = () => component.visible.set(true);
+window.harness.unmount = () => component.visible.set(false);
+document.querySelector('#mount').onclick = window.harness.mount;
+document.querySelector('#unmount').onclick = window.harness.unmount;
+window.harness.dispose = () => ref.destroy();

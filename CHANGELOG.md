@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Add real JavaScript, React, Vue, Angular and Svelte integration apps, production and server rendering builds, hydration and Strict Mode checks.
+- Detect minifiers that erase anti-debugger statements and reject `antiDebug` atomically instead of silently reporting it active. Document the required production minifier setting.
+- Add regression coverage for stripped and preserved builds, actual Chromium debugger pauses, timer cleanup, native browser interactions and repeated framework teardown.
+
 ## 1.0.1 — 2026-10-30
 
 - Correct React, Vue, Angular and Svelte examples to call `destroy()` on unmount; keep `disable()` for reusable pause/resume flows.

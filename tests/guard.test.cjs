@@ -105,3 +105,14 @@ test('CommonJS and ESM entry points expose the same public methods', async () =>
   const cjs = require('../guard.js'); const esm = await import('../guard.mjs');
   assert.deepEqual(Object.keys(cjs).sort(), Object.keys(esm.default).sort()); assert.equal(esm.create, esm.default.create);
 });
+
+test('stripped debugger builds reject antiDebug atomically instead of reporting false protection', () => {
+  const dom = new JSDOM('<!doctype html><html><head></head><body>Test</body></html>', { runScripts: 'outside-only' });
+  dom.window.eval(fs.readFileSync(require.resolve('../guard.js'), 'utf8').replace(/\bdebugger;/g, ''));
+  const guard = dom.window.Guard.create(); guard.enable({ copy: true });
+  const before = guard.status();
+  assert.throws(() => guard.enable({ copy: false, antiDebug: true }), /preserves debugger/);
+  assert.deepEqual(guard.status(), before);
+  assert.throws(() => dom.window.Guard.create({ antiDebug: true }), /preserves debugger/);
+  guard.destroy(); dom.window.close();
+});

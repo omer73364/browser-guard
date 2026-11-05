@@ -1,0 +1,23 @@
+const {test,expect}=require('@playwright/test');
+test('an attached Chromium debugger really pauses, then stops after disable',async({page,context,browserName})=>{
+ test.skip(browserName!=='chromium','CDP is Chromium-specific; this does not certify Firefox/Safari debugger UIs.');
+ await page.goto('/javascript.html');
+ await expect.poll(()=>page.evaluate(()=>window.harness?.active.length||0)).toBe(1);
+ const session=await context.newCDPSession(page);
+ await session.send('Debugger.enable');
+ let pauses=0;
+ session.on('Debugger.paused',()=>pauses++);
+ const paused=new Promise(resolve=>session.once('Debugger.paused',resolve));
+ await page.evaluate(()=>harness.latest.enable({antiDebug:true}));
+ const event=await Promise.race([paused,new Promise((_,reject)=>setTimeout(()=>reject(new Error('Debugger never paused')),5000))]);
+ const source=await session.send('Debugger.getScriptSource',{scriptId:event.callFrames[0].location.scriptId});
+ expect(source.scriptSource).toContain('debugger');
+ await session.send('Debugger.resume');
+ await page.evaluate(()=>harness.latest.disable('antiDebug'));
+ const stopped=pauses;
+ await page.waitForTimeout(1250);
+ expect(pauses).toBe(stopped);
+ await page.evaluate(()=>harness.latest.destroy());
+ expect(await page.evaluate(()=>harness.records.at(-1).controller.status().antiDebug)).toBe(false);
+ await session.detach();
+});

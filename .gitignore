@@ -7,3 +7,9 @@ dist/
 .site-publish/
 
 .github-publish/
+
+tests/integration/apps/.generated/
+tests/integration/apps/*.html
+tests/integration/apps/*.tgz
+tests/integration/apps/dist-dev/
+tests/integration/apps/dist-stripped/
